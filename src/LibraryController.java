@@ -20,6 +20,7 @@ class MenuManager {
 
     Menu menu;
     Book[] books;
+    BookInfoMenu bookInfo = new BookInfoMenu();
 
     public MenuManager(Menu menu, Book[] books) {
         this.menu = menu;
@@ -46,21 +47,25 @@ class MenuManager {
                 importMenu.menuInteract();
                 UserInput.BookInfo userInput = importMenu.getBookInfo();
                 BookManager.addBook(userInput);
+                bookInfo.displayBookList(BookManager.books);
                 break;
             case 2:
-                BookInfoMenu bookMenu = new BookInfoMenu();
-                bookMenu.showAllBooks(books);
+                bookInfo.displayBookList(BookManager.books);
                 break;
             case 3:
+                bookInfo.setDisplayingAll(false);
+                bookInfo.displayBookList(BookManager.books);
+                bookInfo.setDisplayingAll(true);
                 break;
             case 4:
                 int bookIDBorrow = UserInput.consoleIntegerInput("Enter book id");
                 BookManager.borrowBook(bookIDBorrow);
-
+                bookInfo.displayBookList(BookManager.books);
                 break;
             case 5:
                 int bookIDReturn = UserInput.consoleIntegerInput("Enter book id");
                 BookManager.returnBook(bookIDReturn);
+                bookInfo.displayBookList(BookManager.books);
                 break;
             default:
                 break;

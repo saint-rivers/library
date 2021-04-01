@@ -31,6 +31,11 @@ final class ImportMenu extends Menu{
 final class BookInfoMenu extends Menu{
 
     private static final String header = "========= All Books Info =========";
+    private boolean isDisplayingAll = true;
+
+    public void setDisplayingAll(boolean displayingAll) {
+        this.isDisplayingAll = displayingAll;
+    }
 
     public BookInfoMenu() {
         setHeader(header);
@@ -41,14 +46,80 @@ final class BookInfoMenu extends Menu{
         this.failedMessage = "\t\tNo Books Available";
     }
 
-    void showAllBooks(Book[] books){
+    void displayBookList(Book[] books){
         if (books[0] == null) {
             System.out.println(failedMessage);
             return;
         }
+        displayBookInfoTable();
+    }
+
+    public void displayBookInfo(Book book, int[] cellSizes){
+
+        Table.printVerticalDoubleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[0], book.getId());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[1], book.getTitle());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[2], book.getAuthor());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[3], book.getPublishedDate());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[4], book.displayAvailable());
+
+        Table.printVerticalDoubleDivider();
+        System.out.println();
+    }
+
+    public void displayHeader(int[] cellSizes){
+
+        Table.printVerticalDoubleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[0], "ID");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[1], "TITLE");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[2], "AUTHOR");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[3], "PUBLISHED_DATE");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[4], "AVAILABLE");
+
+        Table.printVerticalDoubleDivider();
+        System.out.println();
+    }
+
+    public void displayBookInfoTable() {
+
+        Table.printTableTopBorder(BookManager.cellSizes);
+        displayHeader(BookManager.cellSizes);
+        Table.printTableMiddleBorder(BookManager.cellSizes);
+
         for (int i = 0; i < BookManager.count; i++) {
-            books[i].displayBookInfo(BookManager.cellSizes);
+            if (isDisplayingAll) {
+                printBookInTable(i);
+                continue;
+            }
+            if (BookManager.books[i].isAvailable()) {
+                printBookInTable(i);
+            }
         }
+        Table.printTableBottomBorder(BookManager.cellSizes);
+    }
+
+    private void printBookInTable(int i) {
+        displayBookInfo(BookManager.books[i], BookManager.cellSizes);
+        if (isDisplayingAll && i < BookManager.count - 1)
+            Table.printTableMiddleBorder(BookManager.cellSizes);
+        else if (!isDisplayingAll && i < BookManager.getAvailableBookCount() - 1)
+            Table.printTableMiddleBorder(BookManager.cellSizes);
     }
 }
 
@@ -197,7 +268,6 @@ class Table extends Console{
     public static void printVerticalSingleDivider(String s){
         System.out.print(VERTICAL_SINGLE + s);
     }
-
 
     public static String TOP_LEFT_CORNER = "\u2554";
     public static String STRAIGHT_HORIZONTAL_BORDER = "\u2550";
