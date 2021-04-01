@@ -8,13 +8,65 @@ public class Book extends SuperBook {
         setId(id);
     }
 
-    public void displayBookInfo(){
-        System.out.println(getId());
-        System.out.println(getTitle());
-        System.out.println(getAuthor());
-        System.out.println(getPublishedDate());
-        System.out.println(isAvailable);
+    public Book() {
+        // only testing
+        super(new String[]{"Kafka on the shore","Murakami","1952"});
+    }
+
+    public void displayBookInfo(int[] cellSizes){
+
+        Table.printVerticalDoubleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[0], getId());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[1], getTitle());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[2], getAuthor());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[3], getPublishedDate());
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[4], isAvailable);
+
+        Table.printVerticalDoubleDivider();
         System.out.println();
+    }
+
+    public void displayHeader(int[] cellSizes){
+
+        Table.printVerticalDoubleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[0], "ID");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[1], "TITLE");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[2], "AUTHOR");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[3], "PUBLISHED_DATE");
+
+        Table.printVerticalSingleDivider(" ");
+        Console.printWithSpecificPadding(cellSizes[4], "AVAILABLE");
+
+        Table.printVerticalDoubleDivider();
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        Book book = new Book();
+
+        Table.printTableTopBorder(BookManager.cellSizes);
+        book.displayHeader(BookManager.cellSizes);
+        Table.printTableMiddleBorder(BookManager.cellSizes);
+
+        book.displayBookInfo(BookManager.cellSizes);
+        Table.printTableMiddleBorder(BookManager.cellSizes);
+
+        book.displayBookInfo(BookManager.cellSizes);
+        Table.printTableBottomBorder(BookManager.cellSizes);
     }
 
     public boolean isAvailable() {
@@ -42,6 +94,12 @@ abstract class SuperBook {
     private String title;
     private String author;
     private String publishedDate;
+
+    public SuperBook() {
+        setTitle("TITLE");
+        setAuthor("AUTHOR");
+        setPublishedDate("PUBLISHED_DATE");
+    }
 
     public SuperBook(UserInput.BookInfo userInput) {
         setTitle(userInput.getTitle());
@@ -79,3 +137,4 @@ abstract class SuperBook {
         this.publishedDate = publishedDate;
     }
 }
+

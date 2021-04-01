@@ -5,6 +5,8 @@ public class BookManager {
     static Book[] books = new Book[5];
     static int count = 0;
 
+    public static int[] cellSizes = new int[]{7,20,15,15,12};
+
     public BookManager(){
 
     }
