@@ -1,3 +1,7 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,10 +12,7 @@ public class Validator {
 
     @Override
     public String toString() {
-        return "Validator{" +
-                "a=" + a +
-                ", b=" + b +
-                '}';
+        return "(" + a + "-" + b + ")";
     }
 
     public Validator(int a, int b) {
@@ -32,8 +33,13 @@ public class Validator {
         return !Pattern.matches(search, input.toString());
     }
 
-    static boolean isDigit(String input){
+    static boolean isDigits(String input){
         String search = "[0-9]{1,2}";
+        return Pattern.matches(search, input);
+    }
+
+    static boolean isValidYear(String input){
+        String search = "[0-9]{1,4}";
         return Pattern.matches(search, input);
     }
 
@@ -56,6 +62,7 @@ public class Validator {
         Matcher matcher = pattern.matcher(name);
         return matcher.matches();
     }
+
 
     /**
      * Check if name matches each other.

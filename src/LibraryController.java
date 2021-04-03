@@ -1,6 +1,7 @@
 public class LibraryController {
 
     private static UserInput.LibraryInfo libInfo;
+    static Validator mainValidator = new Validator(1,6);
 
     static void setupHotel(){
         SetUpMenu menu = new SetUpMenu();
@@ -11,9 +12,9 @@ public class LibraryController {
     static void runMainMenu(){
         MainMenu menu = new MainMenu(libInfo);
         MenuManager menuManager = new MenuManager(menu, BookManager.books);
+
         menuManager.executeLoop();
     }
-
 }
 
 class MenuManager {
@@ -35,40 +36,70 @@ class MenuManager {
 
             choice = UserInput.consoleIntegerInput(menu.inputPrompt);
             System.out.println();
+
+            if (LibraryController.mainValidator.isNotInRange(choice))
+                continue;
             this.switchUserOptions(choice);
 
         } while(choice != EXIT_CODE);
+
+        System.out.println("(^-^) Good Bye! (^-^)");
     }
 
-    void switchUserOptions(int choice) {
+    private void switchUserOptions(int choice) {
         switch (choice){
             case 1:
-                ImportMenu importMenu = new ImportMenu();
-                importMenu.menuInteract();
-                UserInput.BookInfo userInput = importMenu.getBookInfo();
-                BookManager.addBook(userInput);
-                bookInfo.displayBookList(BookManager.books);
+                importBookToLibrary();
                 break;
             case 2:
-                bookInfo.displayBookList(BookManager.books);
+                bookInfo.displayMenu(BookManager.books);
                 break;
             case 3:
-                bookInfo.setDisplayingAll(false);
-                bookInfo.displayBookList(BookManager.books);
-                bookInfo.setDisplayingAll(true);
+                displayOnlyBooksAvailableToBorrow();
                 break;
             case 4:
-                int bookIDBorrow = UserInput.consoleIntegerInput("Enter book id");
-                BookManager.borrowBook(bookIDBorrow);
-                bookInfo.displayBookList(BookManager.books);
+                borrowBookFromLibrary();
                 break;
             case 5:
-                int bookIDReturn = UserInput.consoleIntegerInput("Enter book id");
-                BookManager.returnBook(bookIDReturn);
-                bookInfo.displayBookList(BookManager.books);
+                returnBookToLibrary();
                 break;
             default:
                 break;
         }
+    }
+
+    private void returnBookToLibrary() {
+        boolean isSuccessful;
+        int searchID;
+        ReturnMenu returnMenu = new ReturnMenu();
+        returnMenu.displayMenu();
+        searchID = returnMenu.getBookIDInput();
+        isSuccessful = BookManager.returnBook(searchID);
+        returnMenu.displayResultMessage(isSuccessful);
+    }
+
+    private void borrowBookFromLibrary() {
+        boolean isSuccessful;
+        int searchID;
+        BorrowMenu borrowMenu = new BorrowMenu();
+        borrowMenu.displayMenu();
+        searchID = borrowMenu.getBookIDInput();
+        isSuccessful = BookManager.borrowBook(searchID);
+        borrowMenu.displayResultMessage(isSuccessful);
+    }
+
+    private void displayOnlyBooksAvailableToBorrow() {
+        bookInfo.setDisplayingAll(false);
+        bookInfo.displayMenu(BookManager.books);
+        bookInfo.setDisplayingAll(true);
+    }
+
+    private void importBookToLibrary() {
+        ImportMenu importMenu = new ImportMenu();
+        importMenu.displayMenu();
+
+        UserInput.BookInfo userInput = importMenu.getBookInfo();
+        if (userInput != null)
+            if (userInput.containsValidEntries()) BookManager.addBook(userInput);
     }
 }

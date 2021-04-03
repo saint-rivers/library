@@ -8,6 +8,17 @@ public class Book extends SuperBook {
         setId(id);
     }
 
+    public void displaySelf(){
+        Console.printWithPaddingAndColon("Book ID");
+        System.out.println(this.getId());
+        Console.printWithPaddingAndColon("Book Title");
+        System.out.println(this.getTitle());
+        Console.printWithPaddingAndColon("Book Author");
+        System.out.println(this.getAuthor());
+        Console.printWithPaddingAndColon("Published Year");
+        System.out.println(this.getPublishedYear());
+    }
+
     public boolean isAvailable() {
         return isAvailable;
     }
@@ -37,24 +48,24 @@ public class Book extends SuperBook {
 abstract class SuperBook {
     private String title;
     private String author;
-    private String publishedDate;
+    private String publishedYear;
 
     public SuperBook() {
         setTitle("TITLE");
         setAuthor("AUTHOR");
-        setPublishedDate("PUBLISHED_DATE");
+        setPublishedYear("PUBLISHED_DATE");
     }
 
     public SuperBook(UserInput.BookInfo userInput) {
         setTitle(userInput.getTitle());
         setAuthor(userInput.getAuthor());
-        setPublishedDate(userInput.getPublishedDate());
+        setPublishedYear(userInput.getPublishedYear());
     }
 
     public SuperBook(String[] inputs) {
         setTitle(inputs[0]);
         setAuthor(inputs[1]);
-        setPublishedDate(inputs[2]);
+        setPublishedYear(inputs[2]);
     }
 
     public String getTitle() {
@@ -73,12 +84,12 @@ abstract class SuperBook {
         this.author = author;
     }
 
-    public String getPublishedDate() {
-        return publishedDate;
+    public String getPublishedYear() {
+        return publishedYear;
     }
 
-    public void setPublishedDate(String publishedDate) {
-        this.publishedDate = publishedDate;
+    public void setPublishedYear(String publishedYear) {
+        this.publishedYear = publishedYear;
     }
 }
 

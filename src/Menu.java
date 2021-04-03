@@ -1,10 +1,11 @@
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 final class ImportMenu extends Menu{
 
     String[] bookData;
-    private final static String header = "========= ADD BOOK INFO =========";
+    private final static String header = "ADD BOOK INFO";
     private final static String[] prompts = {
             "=> Enter Book's Name",
             "=> Enter Book Author",
@@ -16,8 +17,15 @@ final class ImportMenu extends Menu{
     }
 
     @Override
+    protected void displayMenu() {
+        this.setSuccessfulMessage("\n\tBook added successfully.\n");
+        super.displayMenu();
+        System.out.println(this.successfulMessage);
+    }
+
+    @Override
     protected void menuInteract() {
-        Console.printWithColon("=> Book ID");
+        Console.printWithPaddingAndColon("=> Book ID");
         System.out.println(BookManager.count + 1);
         bookData = UserInput.getPromptedInputs(prompts);
     }
@@ -30,7 +38,6 @@ final class ImportMenu extends Menu{
 
 final class BookInfoMenu extends Menu{
 
-    private static final String header = "========= All Books Info =========";
     private boolean isDisplayingAll = true;
 
     public void setDisplayingAll(boolean displayingAll) {
@@ -38,20 +45,28 @@ final class BookInfoMenu extends Menu{
     }
 
     public BookInfoMenu() {
-        setHeader(header);
+        setHeader(super.header);
         buildFailedMessage();
     }
 
     public void buildFailedMessage() {
-        this.failedMessage = "\t\tNo Books Available";
+        this.failedMessage = "\t\tNo Books Available\n";
     }
 
-    void displayBookList(Book[] books){
+    void displayMenu(Book[] books){
+        displayDynamicTableTitle();
         if (books[0] == null) {
             System.out.println(failedMessage);
             return;
         }
         displayBookInfoTable();
+        Console.promptEnterKey();
+    }
+
+    private void displayDynamicTableTitle() {
+        if (isDisplayingAll) super.header = "ALL BOOKS INFO";
+        else super.header = "AVAILABLE BOOKS INFO";
+        Console.printHeaderStyle(super.header);
     }
 
     public void displayBookInfo(Book book, int[] cellSizes){
@@ -66,7 +81,7 @@ final class BookInfoMenu extends Menu{
         Console.printWithSpecificPadding(cellSizes[2], book.getAuthor());
 
         Table.printVerticalSingleDivider(" ");
-        Console.printWithSpecificPadding(cellSizes[3], book.getPublishedDate());
+        Console.printWithSpecificPadding(cellSizes[3], book.getPublishedYear());
 
         Table.printVerticalSingleDivider(" ");
         Console.printWithSpecificPadding(cellSizes[4], book.displayAvailable());
@@ -75,7 +90,7 @@ final class BookInfoMenu extends Menu{
         System.out.println();
     }
 
-    public void displayHeader(int[] cellSizes){
+    public void displayTableHeader(int[] cellSizes){
 
         Table.printVerticalDoubleDivider(" ");
         Console.printWithSpecificPadding(cellSizes[0], "ID");
@@ -99,7 +114,7 @@ final class BookInfoMenu extends Menu{
     public void displayBookInfoTable() {
 
         Table.printTableTopBorder(BookManager.cellSizes);
-        displayHeader(BookManager.cellSizes);
+        displayTableHeader(BookManager.cellSizes);
         Table.printTableMiddleBorder(BookManager.cellSizes);
 
         for (int i = 0; i < BookManager.count; i++) {
@@ -141,19 +156,19 @@ final class MainMenu extends Menu{
     }
 
     public void buildHeader(UserInput.LibraryInfo userInput) {
-        super.header = "========= " + userInput.getName() + ", " + userInput.getAddress() + " =========";
+        super.header = userInput.getName() + ", " + userInput.getAddress();
     }
 
     public MainMenu(UserInput.LibraryInfo info) {
         super(mainPrompt);
         buildHeader(info);
-        setInputPrompt("Choose option dolphin");
+        setInputPrompt("Choose option" + LibraryController.mainValidator.toString());
         setLoopingMenu(true);
     }
 }
 
 final class SetUpMenu extends Menu{
-    private static final String setupHeader = "========= SET UP LIBRARY =========";
+    private static final String setupHeader = "SET UP LIBRARY";
     private static final String[] setupPrompts = {
             "=> Enter Library's Name",
             "=> Enter Library's Address"
@@ -176,11 +191,12 @@ final class SetUpMenu extends Menu{
     public void displayMenu() {
         super.displayMenu();
         System.out.println(this.successfulMessage);
+        System.out.println();
     }
 
     public void buildSuccessMessage(UserInput.LibraryInfo userInput) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+        ZonedDateTime now = ZonedDateTime.now();
         this.successfulMessage = "\"" + userInput.name + "\" Library is already created in "
                 + "\"" + userInput.address + "\" address successfully on "
                 + dtf.format(now);
@@ -191,6 +207,91 @@ final class SetUpMenu extends Menu{
         return userInput;
     }
 }
+
+abstract class LibraryInteractionMenu extends Menu{
+    protected int bookID = -1;
+    protected String inputIDPrompt;
+
+    public int getBookIDInput() {
+        return bookID;
+    }
+
+    public void setInputIDPrompt(String inputIDPrompt) {
+        this.inputIDPrompt = inputIDPrompt;
+    }
+
+    public void getBookIDFromUser(){
+        bookID = UserInput.consoleIntegerInput(inputIDPrompt);
+    }
+
+    @Override
+    protected void menuInteract() {
+        getBookIDFromUser();
+    }
+
+    public void displayResultMessage(boolean successful) {
+        if (successful) {
+            BookManager.displayBookFromID(bookID);
+            System.out.println(super.successfulMessage);
+            return;
+        }
+        System.out.println(super.failedMessage);
+    }
+
+    abstract public void buildSuccessMessage();
+    abstract public void buildFailedMessage();
+
+    @Override
+    protected void displayMenu() {
+        super.displayMenu();
+        this.buildFailedMessage();
+        this.buildSuccessMessage();
+    }
+}
+
+final class BorrowMenu extends LibraryInteractionMenu{
+
+    String header = "BORROW BOOK INFO";
+    String inputPrompt = "=> Enter Book ID to Borrow";
+
+    public BorrowMenu() {
+        super.header = header;
+        setInputIDPrompt(inputPrompt);
+    }
+
+    @Override
+    public void buildSuccessMessage() {
+        super.successfulMessage = "is borrowed successfully.\n";
+    }
+
+    @Override
+    public void buildFailedMessage() {
+        super.failedMessage = "Book ID: "+ this.bookID +" does not Exist…\n";
+    }
+
+}
+
+final class ReturnMenu extends LibraryInteractionMenu{
+
+    String header = "RETURN BOOK INFO";
+    String inputPrompt = "=> Enter Book ID to Return";
+
+    public ReturnMenu() {
+        super.header = header;
+        setInputIDPrompt(inputPrompt);
+    }
+
+    @Override
+    public void buildSuccessMessage() {
+        super.successfulMessage = "is returned successfully.\n";
+    }
+
+    @Override
+    public void buildFailedMessage() {
+        super.failedMessage = "Book ID: "+ super.bookID +" failed to return...";
+    }
+}
+
 
 class Menu{
 
@@ -205,6 +306,7 @@ class Menu{
     public void buildHeader(UserInput.LibraryInfo userInput){}
     public void buildSuccessMessage(UserInput userInput){}
     public void buildFailedMessage(UserInput userInput){}
+    public void displayResultMessage(){}
 
     public void setHeader(String header) {
         this.header = header;
@@ -232,13 +334,17 @@ class Menu{
         this.prompts = prompts;
     }
 
+    public void displayHeader(){
+        Console.printHeaderStyle(this.header);
+    }
+
     public Menu(String header, String[] prompts) {
         this.header = header;
         this.prompts = prompts;
     }
 
     protected void displayMenu(){
-        System.out.println(this.header);
+        displayHeader();
         menuInteract();
     }
 
@@ -249,107 +355,3 @@ class Menu{
     }
 }
 
-class Table extends Console{
-    public static String VERTICAL_DOUBLE = "\u2551";
-    public static String VERTICAL_SINGLE = "\u2502";
-
-    public static void printVerticalDoubleDivider(){
-        System.out.print(VERTICAL_DOUBLE);
-    }
-
-    public static void printVerticalSingleDivider(){
-        System.out.print(VERTICAL_SINGLE);
-    }
-
-    public static void printVerticalDoubleDivider(String s){
-        System.out.print(VERTICAL_DOUBLE + s);
-    }
-
-    public static void printVerticalSingleDivider(String s){
-        System.out.print(VERTICAL_SINGLE + s);
-    }
-
-    public static String TOP_LEFT_CORNER = "\u2554";
-    public static String STRAIGHT_HORIZONTAL_BORDER = "\u2550";
-    public static String STRAIGHT_CROSSING_BORDER = "\u2564";
-    public static String TOP_RIGHT_CORNER = "\u2557";
-
-    private static void printCellTopBorder(int length){
-        for (int i = 0; i < length + 1; i++) {
-            System.out.print(STRAIGHT_HORIZONTAL_BORDER);
-        }
-    }
-
-    public static void printTableTopBorder(int[] arr){
-        System.out.print(Table.TOP_LEFT_CORNER);
-        for (int i = 0; i < arr.length; i++) {
-            Table.printCellTopBorder(arr[i]);
-            if (i < arr.length - 1) {
-
-                System.out.print(STRAIGHT_CROSSING_BORDER);
-            }
-        }
-        System.out.print(TOP_RIGHT_CORNER);
-        System.out.println();
-    }
-
-    public static String LEFT_DIVIDER = "\u255F";
-    public static String BOTTOM_DIVIDER = "\u2500";
-    public static String CROSS_DIVIDER = "\u253C";
-    public static String RIGHT_DIVIDER = "\u2562";
-
-    private static void printCellBottomBorder(int length){
-        for (int i = 0; i < length + 1; i++) {
-            System.out.print(BOTTOM_DIVIDER);
-        }
-    }
-
-    public static void printTableMiddleBorder(int[] arr){
-        System.out.print(Table.LEFT_DIVIDER);
-        for (int i = 0; i < arr.length; i++) {
-            Table.printCellBottomBorder(arr[i]);
-            if (i < arr.length - 1) {
-                System.out.print(CROSS_DIVIDER);
-            }
-        }
-        System.out.print(RIGHT_DIVIDER);
-        System.out.println();
-    }
-
-    public static String BOTTOM_LEFT_CORNER = "\u255A";
-    public static String BOTTOM_RIGHT_CORNER = "\u255D";
-    public static String BOTTOM_CROSS = "\u2567";
-
-    public static void printTableBottomBorder(int[] arr){
-        System.out.print(Table.BOTTOM_LEFT_CORNER);
-        for (int i = 0; i < arr.length; i++) {
-            Table.printCellTopBorder(arr[i]);
-            if (i < arr.length - 1) {
-                System.out.print(BOTTOM_CROSS);
-            }
-        }
-        System.out.print(BOTTOM_RIGHT_CORNER);
-        System.out.println();
-    }
-}
-
-class Console {
-
-    public static void printWithSpecificPadding(int padSize, Object obj){
-        String s = "%-" + padSize + "s";
-        System.out.printf(s, obj);
-    }
-
-    public static void printWithColon(Object obj){
-        printWithPadding(obj);
-        System.out.print(": ");
-    }
-
-    public static void printWithPaddingAndNewLine(Object obj){
-        System.out.printf("%-30s\n", obj);
-    }
-
-    public static void printWithPadding(Object obj){
-        System.out.printf("%-30s", obj);
-    }
-}
