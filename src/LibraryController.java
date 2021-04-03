@@ -12,7 +12,6 @@ public class LibraryController {
     static void runMainMenu(){
         MainMenu menu = new MainMenu(libInfo);
         MenuManager menuManager = new MenuManager(menu, BookManager.books);
-
         menuManager.executeLoop();
     }
 }
@@ -95,10 +94,15 @@ class MenuManager {
     }
 
     private void importBookToLibrary() {
+        if (BookManager.isFull()){
+            BookManager.displayTableIsFull();
+            System.out.println();
+            return;
+        }
         ImportMenu importMenu = new ImportMenu();
         importMenu.displayMenu();
-
         UserInput.BookInfo userInput = importMenu.getBookInfo();
+
         if (userInput != null)
             if (userInput.containsValidEntries()) BookManager.addBook(userInput);
     }

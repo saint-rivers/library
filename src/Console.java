@@ -100,15 +100,7 @@ class Table extends Console {
 
     public static void printTableTopBorder(int[] arr){
         System.out.print(Table.TOP_LEFT_CORNER);
-        for (int i = 0; i < arr.length; i++) {
-            Table.printCellTopBorder(arr[i]);
-            if (i < arr.length - 1) {
-
-                System.out.print(STRAIGHT_CROSSING_BORDER);
-            }
-        }
-        System.out.print(TOP_RIGHT_CORNER);
-        System.out.println();
+        printHorizontalLine(arr, STRAIGHT_CROSSING_BORDER, TOP_RIGHT_CORNER);
     }
 
     public static String LEFT_DIVIDER = "\u255F";
@@ -140,13 +132,17 @@ class Table extends Console {
 
     public static void printTableBottomBorder(int[] arr){
         System.out.print(Table.BOTTOM_LEFT_CORNER);
+        printHorizontalLine(arr, BOTTOM_CROSS, BOTTOM_RIGHT_CORNER);
+    }
+
+    private static void printHorizontalLine(int[] arr, String bottomCross, String bottomRightCorner) {
         for (int i = 0; i < arr.length; i++) {
             Table.printCellTopBorder(arr[i]);
             if (i < arr.length - 1) {
-                System.out.print(BOTTOM_CROSS);
+                System.out.print(bottomCross);
             }
         }
-        System.out.print(BOTTOM_RIGHT_CORNER);
+        System.out.print(bottomRightCorner);
         System.out.println();
     }
 }

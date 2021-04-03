@@ -2,7 +2,8 @@
 
 public class BookManager {
 
-    static Book[] books = new Book[5];
+    private final static int MAX_ARRAY_LENGTH = 5;
+    static Book[] books = new Book[MAX_ARRAY_LENGTH];
     static int count = 0;
     private static Validator validator;
 
@@ -10,6 +11,15 @@ public class BookManager {
 
     public BookManager(){
 
+    }
+
+    public static boolean isFull(){
+        return count >= MAX_ARRAY_LENGTH;
+    }
+
+    public static void displayTableIsFull(){
+        System.out.println("Book List is full.\n" +
+                "We cannot import any more.");
     }
 
     public static void displayBookFromID(int id){
